@@ -7,145 +7,72 @@ app.use(cors());
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
 
-// Base de datos temporal
 const validKeys = new Map();
 
 // ==========================================
 // ⚙️ CONFIGURACIÓN DE TU SISTEMA ⚙️
 // ==========================================
 
-const ADMIN_PASSWORD = "Mopekora123"; // Tu contraseña secreta para el panel Admin
+const ADMIN_PASSWORD = "Mopekora123";
 
-// ⚠️ AQUÍ PONES EL LINK DE TU CORTADOR (Linkvertise, Workink, etc.)
-// Nota: En tu cortador, debes configurar que la URL de DESTINO final sea:
-// https://server-keys-mopekora.onrender.com/success
-const URL_CORTADOR = "https://linkvertise.com/tu-link-de-ejemplo"; 
+// ⚠️ AQUÍ PEGARÁS TU ENLACE CORTO DE LINKVERTISE DESPUÉS DE CREARLO:
+const URL_CORTADOR = "https://link-hub.net/4821764/AtD2TVNl16mK"; 
 
-const TIEMPO_KEY_HORAS = 9; // Cuántas horas dura la key
+const TIEMPO_KEY_HORAS = 9; 
 // ==========================================
 
-// 1. PÁGINA PRINCIPAL PÚBLICA (Toda negra)
+// 1. PÁGINA PRINCIPAL PÚBLICA (La que abre al darle Get Free Key)
 app.get('/', (req, res) => {
     res.send(`
         <!DOCTYPE html>
-        <html lang="es">
+        <html>
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Mopekora Key System</title>
             <style>
-                body { background: #000; color: #fff; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-                .box { border: 1px solid #333; padding: 40px; border-radius: 10px; text-align: center; background: #0a0a0a; box-shadow: 0 0 20px rgba(255,255,255,0.05); width: 300px; }
-                button { background: #fff; color: #000; border: none; padding: 15px; font-size: 16px; font-weight: bold; cursor: pointer; border-radius: 5px; transition: 0.3s; margin-top: 20px; width: 100%; }
-                button:hover { background: #aaa; box-shadow: 0 0 10px #fff; }
-                h2 { text-shadow: 0 0 10px #fff; letter-spacing: 2px; }
-                .status { color: #0f0; text-shadow: 0 0 5px #0f0; }
+                body { background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+                .box { border: 1px solid #333; padding: 40px; text-align: center; background: #0a0a0a; width: 300px; }
+                button { background: #fff; color: #000; border: none; padding: 15px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; width: 100%; }
             </style>
         </head>
         <body>
             <div class="box">
                 <h2>MOPEKORA SYSTEM</h2>
-                <p>Status: <span class="status">ONLINE</span></p>
-                <p style="font-size: 12px; color: #888;">Key Duration: ${TIEMPO_KEY_HORAS} Hours</p>
-                <button onclick="window.location.href='${URL_CORTADOR}'">GET KEY (ADS)</button>
+                <button onclick="window.location.href='${URL_CORTADOR}'">GENERATE KEY (ADS)</button>
             </div>
         </body>
         </html>
     `);
 });
 
-// 2. PÁGINA DE ÉXITO (Donde llegan después de pasar el cortador de anuncios)
+// 2. PÁGINA DE ÉXITO (Solo el botón azul)
 app.get('/success', (req, res) => {
-    // Generar la key al instante
-    const newKey = 'MOP-' + crypto.randomBytes(4).toString('hex').toUpperCase();
+    // Genera código largo (Ej: MOP-8F9A2B3C4D5E6F7A8B9C0D1E)
+    const newKey = 'MOP-' + crypto.randomBytes(12).toString('hex').toUpperCase();
     const expiresAt = Date.now() + (TIEMPO_KEY_HORAS * 60 * 60 * 1000);
     validKeys.set(newKey, expiresAt);
 
     res.send(`
         <!DOCTYPE html>
-        <html lang="es">
+        <html>
         <head>
             <meta charset="UTF-8">
-            <title>Key Generated</title>
+            <title>Key</title>
             <style>
-                body { background: #000; color: #fff; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-                .box { border: 1px solid #0f0; padding: 40px; border-radius: 10px; text-align: center; background: #051005; box-shadow: 0 0 20px rgba(0,255,0,0.1); width: 320px; }
-                .key-display { background: #000; border: 1px solid #0f0; color: #0f0; padding: 15px; font-size: 22px; font-weight: bold; margin: 20px 0; letter-spacing: 2px; }
-                button { background: #0f0; color: #000; border: none; padding: 12px; font-weight: bold; cursor: pointer; border-radius: 5px; width: 100%; font-size: 16px; }
-                button:hover { background: #fff; }
+                body { background: #000; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+                /* Botón azul simple */
+                button { background: #007BFF; color: #fff; border: none; padding: 20px 40px; font-size: 18px; cursor: pointer; border-radius: 5px; }
+                button:hover { background: #0056b3; }
             </style>
         </head>
         <body>
-            <div class="box">
-                <h2 style="color:#0f0; text-shadow: 0 0 10px #0f0;">SUCCESS!</h2>
-                <p>Your ${TIEMPO_KEY_HORAS}-hour key is ready:</p>
-                <div class="key-display" id="keyText">${newKey}</div>
-                <button onclick="navigator.clipboard.writeText('${newKey}'); alert('Copied to clipboard!');">COPY KEY</button>
-            </div>
+            <button onclick="navigator.clipboard.writeText('${newKey}'); alert('Copied!');">COPY KEY</button>
         </body>
         </html>
     `);
 });
 
-// 3. PANEL DE ADMINISTRADOR SECRETO (UI Negra con recuadro seguro)
-app.get('/admin', (req, res) => {
-    res.send(`
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <title>Admin Panel</title>
-            <style>
-                body { background: #000; color: #fff; font-family: 'Courier New', monospace; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-                .box { border: 1px solid #444; padding: 30px; border-radius: 10px; background: #0a0a0a; text-align:center; width: 300px; }
-                input { padding: 12px; width: 90%; margin-bottom: 20px; background: #000; border: 1px solid #fff; color: #fff; text-align: center; font-family: monospace; outline: none; }
-                button { background: #fff; color: #000; border: none; padding: 12px; font-weight: bold; cursor: pointer; width: 100%; }
-                button:hover { background: #0f0; color: #000; }
-                #result { margin-top: 20px; font-weight: bold; }
-            </style>
-        </head>
-        <body>
-            <div class="box">
-                <h2>ADMIN PANEL</h2>
-                <input type="password" id="pass" placeholder="Enter Secret Password">
-                <button onclick="generate()">GENERATE KEY</button>
-                <div id="result"></div>
-            </div>
-            <script>
-                function generate() {
-                    const pass = document.getElementById('pass').value;
-                    document.getElementById('result').innerHTML = "Generating...";
-                    // Esto envía la contraseña de forma oculta e invisible al servidor
-                    fetch('/api/admin-gen', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ password: pass })
-                    })
-                    .then(r => r.json())
-                    .then(data => {
-                        if(data.error) document.getElementById('result').innerHTML = '<span style="color:#ff4444;">' + data.error + '</span>';
-                        else document.getElementById('result').innerHTML = '<span style="color:#0f0;">KEY: ' + data.key + '</span><br><br><span style="font-size:10px;color:#aaa;">Valid for 9 hours</span>';
-                    });
-                }
-            </script>
-        </body>
-        </html>
-    `);
-});
-
-// Ruta interna secreta para el panel de admin
-app.post('/api/admin-gen', (req, res) => {
-    const { password } = req.body;
-    if (password !== ADMIN_PASSWORD) {
-        return res.status(403).json({ error: 'WRONG PASSWORD' });
-    }
-    const newKey = 'MOP-ADMIN-' + crypto.randomBytes(3).toString('hex').toUpperCase();
-    const expiresAt = Date.now() + (TIEMPO_KEY_HORAS * 60 * 60 * 1000);
-    validKeys.set(newKey, expiresAt);
-    res.json({ key: newKey });
-});
-
-// 4. VERIFICACIÓN (Esto lo usa automáticamente tu script de Tampermonkey)
+// 3. VERIFICACIÓN AUTOMÁTICA
 app.get('/verify', (req, res) => {
     const userKey = req.query.key;
     if (!userKey || !validKeys.has(userKey)) return res.json({ valid: false, message: 'Invalid or missing key' });
@@ -156,6 +83,29 @@ app.get('/verify', (req, res) => {
         return res.json({ valid: false, message: 'Key expired' });
     }
     res.json({ valid: true, expiresAt: expiresAt });
+});
+
+// 4. PANEL ADMIN SECRETO (Opcional, por si quieres hacerte keys sin ver anuncios)
+app.get('/admin', (req, res) => {
+    res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head><style>body{background:#000;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;}input,button{padding:10px;margin:5px;}</style></head>
+        <body>
+            <div>
+                <input type="password" id="p" placeholder="Password">
+                <button onclick="fetch('/api/admin-gen',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:document.getElementById('p').value})}).then(r=>r.json()).then(d=>alert(d.key||d.error))">Gen Key</button>
+            </div>
+        </body>
+        </html>
+    `);
+});
+
+app.post('/api/admin-gen', (req, res) => {
+    if (req.body.password !== ADMIN_PASSWORD) return res.status(403).json({ error: 'Wrong Password' });
+    const newKey = 'MOP-' + crypto.randomBytes(12).toString('hex').toUpperCase();
+    validKeys.set(newKey, Date.now() + (TIEMPO_KEY_HORAS * 60 * 60 * 1000));
+    res.json({ key: newKey });
 });
 
 const PORT = process.env.PORT || 3000;
