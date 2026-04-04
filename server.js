@@ -8,7 +8,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const validKeys = new Map();
-const activeSessions = new Set(); 
 
 // ==========================================
 // ⚙️ CONFIGURACIÓN DE TU SISTEMA ⚙️
@@ -18,73 +17,86 @@ const URL_CORTADOR = "https://link-hub.net/4821764/AtD2TVNl16mK";
 const TIEMPO_KEY_HORAS = 9; 
 // ==========================================
 
-// 1. PÁGINA PRINCIPAL (MODIFICADA: BLANCA Y VERDE)
+// 1. PÁGINA PRINCIPAL (FONDO NEGRO, BOTÓN AZUL, TEXTO EN MOVIMIENTO)
 app.get('/', (req, res) => {
-    const sessionId = crypto.randomBytes(16).toString('hex');
-    activeSessions.add(sessionId);
-    setTimeout(() => activeSessions.delete(sessionId), 10 * 60 * 1000);
-
     res.send(`
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>MOPEKORA SYSTEM</title>
-            <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
+            <title>Key System</title>
             <style>
-                body { background: #ffffff; color: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-                .box { border: 1px solid #e0e0e0; padding: 40px; text-align: center; background: #fff; width: 340px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-                h2 { color: #1a1a1a; margin-bottom: 5px; }
-                p { font-size: 14px; color: #666; margin-bottom: 25px; }
-                
+                body { 
+                    background: #000; 
+                    color: #fff; 
+                    font-family: sans-serif; 
+                    display: flex; 
+                    flex-direction: column; 
+                    align-items: center; 
+                    justify-content: center; 
+                    height: 100vh; 
+                    margin: 0; 
+                    overflow: hidden; 
+                }
+
+                /* Contenedor del texto que se mueve */
+                .marquee-container {
+                    width: 100%;
+                    overflow: hidden;
+                    position: absolute;
+                    top: 25%;
+                }
+
+                .moving-text {
+                    display: inline-block;
+                    white-space: nowrap;
+                    font-size: 20px;
+                    font-weight: bold;
+                    animation: marquee 10s linear infinite;
+                }
+
+                @keyframes marquee {
+                    0% { transform: translateX(-100%); }
+                    100% { transform: translateX(100vw); }
+                }
+
                 button { 
-                    background: #23a559; /* Verde estilo Discord Success */
+                    background: #007BFF; 
                     color: #fff; 
                     border: none; 
-                    padding: 15px; 
-                    font-size: 16px; 
+                    padding: 20px 50px; 
+                    font-size: 18px; 
                     font-weight: bold; 
                     cursor: pointer; 
-                    width: 100%; 
-                    border-radius: 8px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 10px;
-                    transition: background 0.2s; 
+                    border-radius: 5px;
+                    z-index: 10;
                 }
-                button:hover { background: #1a7a42; }
                 
-                /* Estilo para los Twemojis */
-                .emoji { width: 20px; height: 20px; }
+                button:hover { background: #0056b3; }
             </style>
         </head>
         <body>
-            <div class="box">
-                <h2>MOPEKORA</h2>
-                <p>Get your 9-hour access key</p>
-                <button onclick="window.location.href='${URL_CORTADOR}'">
-                    <span>GENERATE KEY</span> 🔑
-                </button>
+            <div class="marquee-container">
+                <div class="moving-text">Get your 9-hour access key 🔑</div>
             </div>
-            <script>twemoji.parse(document.body);</script>
+            
+            <button onclick="window.location.href='${URL_CORTADOR}'">GENERATE KEY</button>
         </body>
         </html>
     `);
 });
 
-// 2. PÁGINA DE ÉXITO (PROTEGIDA CON REFERER)
+// 2. PÁGINA DE ÉXITO (IGUALMENTE NEGRA CON BOTÓN AZUL)
 app.get('/success', (req, res) => {
     const referer = req.get('Referer') || "";
     const isFromAds = referer.includes("link-hub.net") || referer.includes("linkvertise.com");
     
     if (!isFromAds) {
         return res.send(`
-            <body style="background:#fff;color:#f00;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;">
+            <body style="background:#000;color:#f00;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;">
                 <div style="text-align:center;">
-                    <h1 style="color:#da373c;">ACCESS DENIED</h1>
-                    <p style="color:#666;">Unauthorized direct access. Please use the generator.</p>
-                    <button onclick="window.location.href='/'" style="padding:10px; cursor:pointer; background:#23a559; color:#fff; border:none; border-radius:5px;">Go to Home</button>
+                    <h1>ACCESS DENIED</h1>
+                    <button onclick="window.location.href='/'" style="padding:10px; cursor:pointer; background:#007BFF; color:#fff; border:none;">Go Back</button>
                 </div>
             </body>
         `);
@@ -99,25 +111,18 @@ app.get('/success', (req, res) => {
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>Your Key</title>
-            <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
             <style>
-                body { background: #ffffff; color: #000; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: sans-serif; }
-                .card { background: #fff; padding: 40px; border: 2px solid #23a559; text-align: center; border-radius: 12px; width: 340px; }
-                .key-display { background: #f2f3f5; padding: 15px; border: 1px solid #e0e0e0; margin: 20px 0; font-size: 16px; font-weight: bold; color: #23a559; word-break: break-all; }
-                button { background: #23a559; color: #fff; border: none; padding: 15px; cursor: pointer; font-weight: bold; width: 100%; border-radius: 8px; }
-                .emoji { width: 18px; height: 18px; vertical-align: middle; }
+                body { background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: sans-serif; }
+                .key-box { border: 1px solid #333; padding: 30px; text-align: center; }
+                .key { color: #007BFF; font-size: 24px; margin: 20px 0; font-weight: bold; }
+                button { background: #007BFF; color: #fff; border: none; padding: 15px 30px; cursor: pointer; font-weight: bold; }
             </style>
         </head>
         <body>
-            <div class="card">
-                <h3 style="margin:0;">SUCCESS! ✅</h3>
-                <p style="color:#666; font-size: 14px;">Your key is ready to use</p>
-                <div class="key-display" id="k">${newKey}</div>
+            <div class="key-box">
+                <div class="key">${newKey}</div>
                 <button onclick="navigator.clipboard.writeText('${newKey}'); alert('Copied!');">COPY KEY</button>
-                <p style="font-size:11px; margin-top:15px; color:#999;">Valid for 9 hours</p>
             </div>
-            <script>twemoji.parse(document.body);</script>
         </body>
         </html>
     `);
@@ -126,16 +131,16 @@ app.get('/success', (req, res) => {
 // 3. VERIFICACIÓN
 app.get('/verify', (req, res) => {
     const userKey = req.query.key;
-    if (!userKey || !validKeys.has(userKey)) return res.json({ valid: false, message: 'Invalid Key' });
+    if (!userKey || !validKeys.has(userKey)) return res.json({ valid: false });
     const expiresAt = validKeys.get(userKey);
     if (Date.now() > expiresAt) {
         validKeys.delete(userKey);
-        return res.json({ valid: false, message: 'Key Expired' });
+        return res.json({ valid: false });
     }
     res.json({ valid: true, expiresAt: expiresAt });
 });
 
-// 4. ADMIN PANEL
+// 4. ADMIN GEN
 app.post('/api/admin-gen', (req, res) => {
     if (req.body.password !== ADMIN_PASSWORD) return res.status(403).json({ error: 'Denied' });
     const newKey = 'MOP-ADMIN-' + crypto.randomBytes(6).toString('hex').toUpperCase();
@@ -143,12 +148,5 @@ app.post('/api/admin-gen', (req, res) => {
     res.json({ key: newKey });
 });
 
-setInterval(() => {
-    const now = Date.now();
-    for (const [key, expire] of validKeys.entries()) {
-        if (now > expire) validKeys.delete(key);
-    }
-}, 60 * 60 * 1000);
-
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('Server Mopekora Live on port ' + PORT));
+app.listen(PORT, () => console.log('Server running on port ' + PORT));
