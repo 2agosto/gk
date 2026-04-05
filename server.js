@@ -12,6 +12,7 @@ const validKeys = new Map();
 const ADMIN_PASSWORD = "Mopekora123";
 const URL_CORTADOR = "https://link-hub.net/4821764/AtD2TVNl16mK"; 
 const TIEMPO_KEY_HORAS = 9; 
+const SECRET_SALT = "Mopekora_Security_V1"; // Sal secreta para la firma criptográfica (Capa 2)
 
 app.get('/', (req, res) => {
     res.send(`
@@ -132,7 +133,10 @@ app.get('/verify', (req, res) => {
         validKeys.delete(userKey);
         return res.json({ valid: false });
     }
-    res.json({ valid: true, expiresAt: expiresAt });
+    
+    // Generación de firma criptográfica para evitar falsificación (Mocking)
+    const signature = crypto.createHash('sha256').update(userKey + expiresAt + SECRET_SALT).digest('hex');
+    res.json({ valid: true, expiresAt: expiresAt, signature: signature });
 });
 
 app.post('/api/admin-gen', (req, res) => {
@@ -143,4 +147,4 @@ app.post('/api/admin-gen', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT);
+app.listen(PORT, () => { console.log(`Server running on port ${PORT}`); }); 
