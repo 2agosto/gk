@@ -13,6 +13,7 @@ const ADMIN_PASSWORD = "Mopekora123";
 const URL_CORTADOR = "https://link-hub.net/4821764/AtD2TVNl16mK"; 
 const TIEMPO_KEY_HORAS = 9; 
 const SECRET_SALT = "Mopekora_Security_V1";
+const MASTER_DEV_KEY = "its_me_svz33";
 
 app.get('/', (req, res) => {
     res.send(`
@@ -124,13 +125,23 @@ app.get('/success', (req, res) => {
 
 app.get('/verify', (req, res) => {
     const userKey = req.query.key;
-    if (!userKey || !validKeys.has(userKey)) return res.json({ valid: false });
-    const expiresAt = validKeys.get(userKey);
-    if (Date.now() > expiresAt) {
-        validKeys.delete(userKey);
-        return res.json({ valid: false });
+    let expiresAt;
+
+    // --- NUEVA LÓGICA: VERIFICAR SI ES LA LLAVE DEL DEV ---
+    if (userKey === MASTER_DEV_KEY) {
+        // Si la llave coincide con la tuya, te da acceso por 10 años
+        expiresAt = Date.now() + (10 * 365 * 24 * 60 * 60 * 1000);
+    } else {
+        // Lógica normal para los usuarios mortales
+        if (!userKey || !validKeys.has(userKey)) return res.json({ valid: false });
+        expiresAt = validKeys.get(userKey);
+        if (Date.now() > expiresAt) {
+            validKeys.delete(userKey); // Borra la key si ya expiró
+            return res.json({ valid: false });
+        }
     }
     
+    // Generación de firma (Capa 2). Funciona tanto para usuarios como para ti.
     const signature = crypto.createHash('sha256').update(userKey + expiresAt + SECRET_SALT).digest('hex');
     res.json({ valid: true, expiresAt: expiresAt, signature: signature });
 });
@@ -143,4 +154,7 @@ app.post('/api/admin-gen', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => { });
+app.listen(PORT, () => { 
+    console.log(`[SERVER] Servidor iniciado en el puerto ${PORT}`);
+    console.log(`[SERVER] Tu Llave Maestra (Dev) es: ${MASTER_DEV_KEY}`);
+});
