@@ -9,15 +9,10 @@ app.use(express.urlencoded({ extended: true }));
 
 const validKeys = new Map();
 
-// ==========================================
-// ⚙️ CONFIGURACIÓN DE TU SISTEMA ⚙️
-// ==========================================
 const ADMIN_PASSWORD = "Mopekora123";
 const URL_CORTADOR = "https://link-hub.net/4821764/AtD2TVNl16mK"; 
 const TIEMPO_KEY_HORAS = 9; 
-// ==========================================
 
-// 1. PÁGINA PRINCIPAL (FONDO NEGRO, BOTÓN AZUL, TEXTO EN MOVIMIENTO)
 app.get('/', (req, res) => {
     res.send(`
         <!DOCTYPE html>
@@ -39,7 +34,6 @@ app.get('/', (req, res) => {
                     overflow: hidden; 
                 }
 
-                /* Contenedor del texto que se mueve */
                 .marquee-container {
                     width: 100%;
                     overflow: hidden;
@@ -81,23 +75,24 @@ app.get('/', (req, res) => {
             </div>
             
             <button onclick="window.location.href='${URL_CORTADOR}'">GENERATE KEY</button>
+            <input type="range" id="musicDragBar" min="0" max="100" value="0" style="margin-top: 20px; z-index: 10;">
         </body>
         </html>
     `);
 });
 
-// 2. PÁGINA DE ÉXITO (IGUALMENTE NEGRA CON BOTÓN AZUL)
 app.get('/success', (req, res) => {
     const referer = req.get('Referer') || "";
     const isFromAds = referer.includes("link-hub.net") || referer.includes("linkvertise.com");
     
     if (!isFromAds) {
         return res.send(`
-            <body style="background:#000;color:#f00;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;">
+            <body style="background:#000;color:#f00;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;flex-direction:column;">
                 <div style="text-align:center;">
                     <h1>ACCESS DENIED</h1>
                     <button onclick="window.location.href='/'" style="padding:10px; cursor:pointer; background:#007BFF; color:#fff; border:none;">Go Back</button>
                 </div>
+                <input type="range" id="musicDragBar" min="0" max="100" value="0" style="margin-top: 20px; z-index: 10;">
             </body>
         `);
     }
@@ -123,12 +118,12 @@ app.get('/success', (req, res) => {
                 <div class="key">${newKey}</div>
                 <button onclick="navigator.clipboard.writeText('${newKey}'); alert('Copied!');">COPY KEY</button>
             </div>
+            <input type="range" id="musicDragBar" min="0" max="100" value="0" style="margin-top: 20px; z-index: 10;">
         </body>
         </html>
     `);
 });
 
-// 3. VERIFICACIÓN
 app.get('/verify', (req, res) => {
     const userKey = req.query.key;
     if (!userKey || !validKeys.has(userKey)) return res.json({ valid: false });
@@ -140,7 +135,6 @@ app.get('/verify', (req, res) => {
     res.json({ valid: true, expiresAt: expiresAt });
 });
 
-// 4. ADMIN GEN
 app.post('/api/admin-gen', (req, res) => {
     if (req.body.password !== ADMIN_PASSWORD) return res.status(403).json({ error: 'Denied' });
     const newKey = 'MOP-ADMIN-' + crypto.randomBytes(6).toString('hex').toUpperCase();
@@ -149,4 +143,4 @@ app.post('/api/admin-gen', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('Server running on port ' + PORT));
+app.listen(PORT);
