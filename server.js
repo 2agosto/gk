@@ -12,7 +12,7 @@ const validKeys = new Map();
 const ADMIN_PASSWORD = "Mopekora123";
 const URL_CORTADOR = "https://link-hub.net/4821764/AtD2TVNl16mK"; 
 const TIEMPO_KEY_HORAS = 9; 
-const SECRET_SALT = "Mopekora_Security_V1"; // Sal secreta para la firma criptográfica (Capa 2)
+const SECRET_SALT = "Mopekora_Security_V1";
 
 app.get('/', (req, res) => {
     res.send(`
@@ -76,7 +76,6 @@ app.get('/', (req, res) => {
             </div>
             
             <button onclick="window.location.href='${URL_CORTADOR}'">GENERATE KEY</button>
-            <input type="range" id="musicDragBar" min="0" max="100" value="0" style="margin-top: 20px; z-index: 10;">
         </body>
         </html>
     `);
@@ -93,7 +92,6 @@ app.get('/success', (req, res) => {
                     <h1>ACCESS DENIED</h1>
                     <button onclick="window.location.href='/'" style="padding:10px; cursor:pointer; background:#007BFF; color:#fff; border:none;">Go Back</button>
                 </div>
-                <input type="range" id="musicDragBar" min="0" max="100" value="0" style="margin-top: 20px; z-index: 10;">
             </body>
         `);
     }
@@ -119,7 +117,6 @@ app.get('/success', (req, res) => {
                 <div class="key">${newKey}</div>
                 <button onclick="navigator.clipboard.writeText('${newKey}'); alert('Copied!');">COPY KEY</button>
             </div>
-            <input type="range" id="musicDragBar" min="0" max="100" value="0" style="margin-top: 20px; z-index: 10;">
         </body>
         </html>
     `);
@@ -134,7 +131,6 @@ app.get('/verify', (req, res) => {
         return res.json({ valid: false });
     }
     
-    // Generación de firma criptográfica para evitar falsificación (Mocking)
     const signature = crypto.createHash('sha256').update(userKey + expiresAt + SECRET_SALT).digest('hex');
     res.json({ valid: true, expiresAt: expiresAt, signature: signature });
 });
@@ -147,4 +143,4 @@ app.post('/api/admin-gen', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => { console.log(`Server running on port ${PORT}`); }); 
+app.listen(PORT, () => { });
